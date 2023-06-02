@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="370744842481-at1rs8nankqsmtljfi4in20d1df6508j.apps.googleusercontent.com">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <title>Contratacion Personas</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <hr>
+    <!-- Boton de google -->
+    <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+    <br>
+    <!-- Boton de facebook -->
+    <div class="fb-login-button" data-width="" data-size="large" data-button-type="continue_with" data-layout="default" data-auto-logout-link="false" data-use-continue-as="false"></div>
+    <div id="status"></div>
+    <br>
+    <!-- Cerrar sesion -->
+    <button type="button" class="btn btn-danger" href="#" onclick="signOut();">Cerrar sesion</button>
+    <!-- script para la configuracion de google -->
+    <script>
+      
+      var url = (window.location.hostname.includes('localhost'))
+      ? 'http://localhost:3000/api/auth/google'
+      :'';
+
+      function onSignIn(googleUser) {
+        // Datos del perfil de la cuenta
+        var profile = googleUser.getBasicProfile();
+        console.log("ID: " + profile.getId()); // Don't send this directly to your server!
+        console.log('Full Name: ' + profile.getName());
+        console.log('Given Name: ' + profile.getGivenName());
+        console.log('Family Name: ' + profile.getFamilyName());
+        console.log("Image URL: " + profile.getImageUrl());
+        console.log("Email: " + profile.getEmail());
+
+        // token que se genera
+        var id_token = googleUser.getAuthResponse().id_token;
+        const data = {id_token};
+        fetch(url, {
+          method: 'POST',
+          headers: {'Content-Type': ' application/json'},
+          body: JSON.stringify(data)
+        })
+        .then(resp => resp.json())
+        .then(data => console.log('El Server', data))
+        .catch(console.log);
+      }
+
+      function signOut() {
+          var auth2 = gapi.auth2.getAuthInstance();
+          auth2.signOut().then(function() {
+              console.log("Se ha cerrado sesion");
+          })
+      }
+    </script>
+    <!-- script para la configuracion de facebook -->
+    <script>
+
+      function statusChangeCallback(response) {  // Called with the results from FB.getLoginStatus().
+        console.log('statusChangeCallback');
+        console.log(response);                   // The current login status of the person.
+        if (response.status === 'connected') {   // Logged into your webpage and Facebook.
+          testAPI();  
+        } else {                                 // Not logged into your webpage or we are unable to tell.
+          console.log('status','No se ha conectado ' +
+            'con Facebook');
+        }
+      }
+    
+    
+      function checkLoginState() {               // Called when a person is finished with the Login Button.
+        FB.getLoginStatus(function(response) {   // See the onlogin handler
+          statusChangeCallback(response);
+        });
+      }
+    
+    
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '191149405896362',
+          cookie     : true,                     // Enable cookies to allow the server to access the session.
+          xfbml      : true,                     // Parse social plugins on this webpage.
+          version    : 'v10.0'           // Use this Graph API version for this call.
+        });
+    
+    
+        FB.getLoginStatus(function(response) {   // Called after the JS SDK has been initialized.
+          statusChangeCallback(response);        // Returns the login status.
+        });
+      };
+     
+      function testAPI() {                      // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
+        console.log('Welcome!  Fetching your information.... ');
+        FB.api('/me', function(response) {
+          console.log('Successful login for: ' + response.name);
+          document.getElementById('status').innerHTML =
+            'Thanks for logging in, ' + response.name + '!';
+        });
+      }
+    
+    </script>
+
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_ES/sdk.js#xfbml=1&version=v10.0&appId=191149405896362&autoLogAppEvents=1" nonce="zeN4LuVA"></script>
+</body>
+</html>
